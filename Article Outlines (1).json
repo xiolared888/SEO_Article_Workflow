@@ -1,0 +1,663 @@
+{
+  "name": "Article Outlines",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic:\n{{ $('Get row(s) in sheet').item.json.title }}\n\nSummary:\n{{ $('Get row(s) in sheet').item.json.summary }}\n\nCreate the outline strictly following the system instructions. Make it specific and practical, not generic.\n\n",
+        "options": {
+          "systemMessage": "=You are an expert SEO content strategist and editor.\n\nWrite a detailed article OUTLINE (not the full article) for a ~1,200-word blog post.\n\nHard requirements:\n\nUse Markdown headings: #, ##, ###.\nInclude SEO keywords: provide a list of 8–15 primary/secondary keywords and 5–10 long-tail keyword phrases.\nInclude a short suggested meta title (max ~60 characters) and meta description (max ~155 characters).\nInclude an outline with section-by-section target word counts that total ~1,200 words.\nUnder each heading, add 2–6 bullet points describing what to cover.\nAdd 4–7 FAQs at the end with question-style headings or bullets.\nWriting level: keep wording simple and clear to target Flesch Reading Ease 60–70.\nPrefer short sentences, common words, and active voice.\nAvoid jargon unless it’s defined in plain language.\nInclude a References section at the end:\nProvide 3–6 credible sources.\nFormat all sources in APA style.\nInclude clickable hyperlinks for each source so readers can access them directly.\n\nOutput format (in this exact order):\n\nMeta Title\nMeta Description\nSEO Keywords (Primary/Secondary + Long-tail)\nOutline (Markdown headings + bullets + target word counts)\nEstimated Flesch Reading Ease (60–70) + a 1–2 sentence note on how you achieved it\nTotal Target Word Count (~1,200)\nReferences (APA format with hyperlinks)\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1152,
+        464
+      ],
+      "id": "4ccc5af4-967b-4747-a856-81e9d57ed73b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1nTWqzdpKrpqW-WMFMrTKPsZ6MjvqMkk_8F8ETuOHALw",
+          "mode": "list",
+          "cachedResultName": "Daily Aricle Ideas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nTWqzdpKrpqW-WMFMrTKPsZ6MjvqMkk_8F8ETuOHALw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nTWqzdpKrpqW-WMFMrTKPsZ6MjvqMkk_8F8ETuOHALw/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "=Status",
+              "lookupValue": "Idea"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1600,
+        560
+      ],
+      "id": "f7bf66e6-7ecb-4fe6-bb68-9f7a17898616",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "m2ICqOda6nVyWL7i",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0123977c-622d-4b32-8efe-fd16155e397a",
+              "name": "={{ $json.title }}",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "ecf2f899-e216-489f-8294-672237a7a7d1",
+              "name": "={{ $json.summary }}",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1376,
+        464
+      ],
+      "id": "ed23ee0f-7ed2-49c4-9263-66ca08e2634e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1824,
+        560
+      ],
+      "id": "b9e53ecf-d240-421c-b8fc-e1100944d1df",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the blueprint text\nconst blueprint = $input.first().json.output;\n\n// Replace markdown symbols and tidy up (example: remove backslashes)\nconst cleanedOutline = blueprint.replace(/\\\\n/g, \"\\n\").replace(/[*_]/g, \"\");\n\n// Output the cleaned text\nitems[0].json.cleanedOutline = cleanedOutline;\n\nreturn items;\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        464
+      ],
+      "id": "bf8fbe15-103d-4454-a2b7-b8a864c142b2",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "1x8-j-NFljrL4SZ8wgfXZsAmJ5-doLVUrGfAHBYXp-g8",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "object": "=text",
+              "action": "=insert",
+              "insertSegment": "=body",
+              "locationChoice": "=endOfSegmentLocation",
+              "index": 0,
+              "text": "={{ $json.cleanedOutline }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -576,
+        464
+      ],
+      "id": "a1c32220-f682-4b7c-9765-0b290c390c37",
+      "name": "Update a document1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "9ilp20fDQTf00tCG",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write the article based on this outline, format it it with headers, Fletch score 60-70, 1200 words, use narrative introduction, make content exciting and captivating:{{ $('Code in JavaScript').item.json.cleanedOutline }}",
+        "options": {
+          "systemMessage": "\n## Role\nWorld class blogger and SEO and AEO content creator. Write engaging, thought provoking articles for a global audience.\n\n## Voice & Readability\n- Match user’s voice and style  \n- Flesch score: 60–70  \n- Use simple, natural language and active voice  \n- Tone: energetic, reflective, intellectually provocative  \n- Present opposing viewpoints to challenge assumptions  \n\n## Structure\n- Open with a short, reflective narrated introduction  \n- Main body: ~1200 words (exclude FAQ)  \n- Use clear headings and logical flow  \n- Keep sentences concise and readable  \n- Balance optimism and skepticism  \n\n## Style Rules\n- No em dashes  \n- No hyphens  \n- Conversational, smooth, non academic  \n- Avoid jargon  \n- Prioritize clarity and accessibility  \n\n## FAQ Section\n- Add at end  \n- Begin with a short reflective sentence  \n- Provide clear, concise answers  \n\n## Sources\n- Use credible sources  \n- Cite in APA format with clickable links  \n- Integrate naturally in text  \n- Include references section at end  \n\n## Goal\nProduce a globally appealing blog article that blends storytelling, technical insight, and critical analysis while remaining clear and easy to read.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -352,
+        464
+      ],
+      "id": "22f9ff6a-191a-4044-8b85-f6356ff24967",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "content": "Generate outline, article, and images workflow",
+        "height": 432,
+        "width": 3200
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1904,
+        400
+      ],
+      "typeVersion": 1,
+      "id": "60ac8db7-94d6-4fe8-b5de-9f881496a9fe",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfor (const item of items) {\n  let text = item.json.output;\n\n  // 1. Convert escaped newlines\n  text = text.replace(/\\\\n/g, '\\n');\n\n  // 2. Remove weird invisible unicode characters\n  text = text.replace(/[\\u200B-\\u200D\\uFEFF]/g, '');\n\n  // 3. Normalize all line breaks\n  text = text.replace(/\\r\\n/g, '\\n');\n  text = text.replace(/\\r/g, '\\n');\n\n  // 4. Remove markdown formatting\n  text = text.replace(/\\*\\*(.*?)\\*\\*/g, '$1');\n  text = text.replace(/\\*(.*?)\\*/g, '$1');\n  text = text.replace(/^#{1,6}\\s*/gm, '');\n\n  // 5. Fix spacing issues\n  text = text.replace(/\\n{3,}/g, '\\n\\n');\n\n  // 6. FORCE proper paragraph structure\n  text = text.split('\\n').map(line => line.trim()).join('\\n');\n\n  // 7. Final cleanup\n  text = text.trim();\n\n  item.json.cleaned_text = text;\n}\n\nreturn items;\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        464
+      ],
+      "id": "9577ccc4-23a8-4541-be0d-161dd021190a",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "object": "=text",
+              "action": "=insert",
+              "insertSegment": "=body",
+              "locationChoice": "=endOfSegmentLocation",
+              "index": 0,
+              "text": "={{ $(\"Code in JavaScript1\").item.json.cleaned_text }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        448,
+        464
+      ],
+      "id": "4ccd9cc8-20cf-4b2c-b22f-b0141bafb6d0",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "9ilp20fDQTf00tCG",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "1uUSNwNG1dY5gPW-JZAjXr5I2nVrRv9sZ",
+        "title": "={{ $('Get row(s) in sheet').item.json.title }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        224,
+        464
+      ],
+      "id": "9aa94f4a-96b1-4456-a1b5-cb50eafb433e",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "9ilp20fDQTf00tCG",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -1080,
+        688
+      ],
+      "id": "e5386209-9461-4454-95a1-ff51b5e7a11b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "81QIQtTRddOx8jWG",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1nTWqzdpKrpqW-WMFMrTKPsZ6MjvqMkk_8F8ETuOHALw",
+          "mode": "list",
+          "cachedResultName": "Daily Aricle Ideas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nTWqzdpKrpqW-WMFMrTKPsZ6MjvqMkk_8F8ETuOHALw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nTWqzdpKrpqW-WMFMrTKPsZ6MjvqMkk_8F8ETuOHALw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Published",
+            "row_number": 0
+          },
+          "matchingColumns": [
+            "Status"
+          ],
+          "schema": [
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Published",
+              "displayName": "Date Published",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1376,
+        656
+      ],
+      "id": "230e7eb8-9365-4037-a48e-2036b5609da7",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "m2ICqOda6nVyWL7i",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const title = $(\"Get row(s) in sheet\").item.json.title;\nconst summary = $(\"Get row(s) in sheet\").item.json.summary;\n\nconst prompts = [\n  `Professional hero image for article about ${title}. ${summary}. High quality, modern, clean composition.`,\n  `Detailed illustration representing ${title}. ${summary}. Vibrant colors, engaging visual.`,\n  `Conceptual image showing ${title}. ${summary}. Abstract, thought-provoking design.`\n];\n\nreturn prompts.map((prompt, index) => ({ json: { prompt, imageNumber: index + 1 } }));\n"
+      },
+      "id": "61d1f73b-8f72-4454-851b-47da5e417b24",
+      "name": "Generate Image Prompts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "dall-e-3"
+        },
+        "prompt": "={{ $json.prompt }}",
+        "options": {
+          "size": "1024x1024",
+          "style": "vivid",
+          "returnImageUrls": false,
+          "binaryPropertyOutput": "data"
+        }
+      },
+      "id": "40fb4db9-5b05-4bab-aca9-fb4b5aee47a5",
+      "name": "Generate Image",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        464
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "81QIQtTRddOx8jWG",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{ $(\"Get row(s) in sheet\").item.json.title }} - Image {{ $json.imageNumber }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "myDrive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1uUSNwNG1dY5gPW-JZAjXr5I2nVrRv9sZ",
+          "cachedResultName": "Articles"
+        },
+        "options": {}
+      },
+      "id": "0ea7484e-be50-461e-b873-15cc6cdfbf92",
+      "name": "Upload to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1120,
+        464
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "ZOyllcmUd5RqCpbt",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $(\"Create a document\").item.json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "object": "=text",
+              "action": "=insert",
+              "insertSegment": "=body",
+              "locationChoice": "=endOfSegmentLocation",
+              "index": 0,
+              "text": "=\n[Image {{ $(\"Upload to Google Drive\").item.json.name }}: {{ $(\"Upload to Google Drive\").item.json.webViewLink }}]\n"
+            }
+          ]
+        }
+      },
+      "id": "378ba87e-afa4-454e-9ef0-df494464ae70",
+      "name": "Insert Image into Doc",
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        464
+      ],
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "9ilp20fDQTf00tCG",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Update a document1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a document": {
+      "main": [
+        [
+          {
+            "node": "Generate Image Prompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image Prompts": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Upload to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Insert Image into Doc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "9b461132-929b-42b4-9184-9c9e04e95560",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8d6a5242629bd7a1e65aa30be331de3e973dfc623bdd62b21b44a73c28540a0b"
+  },
+  "id": "OypXOj7rsOLpI8Cc",
+  "tags": []
+}
